@@ -1,26 +1,37 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { Button } from 'antd';
+import { Editor, EditorState, RichUtils } from 'draft-js';
+import styles from './App.module.scss';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const ButtonGroup = Button.Group;
+
+const App = () => {
+	const [editorState, saveEditorState] = useState(EditorState.createEmpty());
+	const hanldeChangeEditor = editorState => {
+		saveEditorState(editorState);
+	}
+	return (
+		<div className={styles.container}>
+			<div className={styles.title}>Hanjh Editor</div>
+			<div className={styles.main}>
+				<div className={styles.btns}>
+					<ButtonGroup>
+						<Button icon="bold" />
+						<Button icon="italic" />
+						<Button icon="underline" />
+					</ButtonGroup>
+				</div>
+				<div className={styles.editor}>
+					<Editor
+						editorState={editorState}
+						onChange={hanldeChangeEditor}
+						placeholder="Enter content..."
+					/>
+				</div>
+				
+			</div>
+		</div>
+	)
+};
 
 export default App;

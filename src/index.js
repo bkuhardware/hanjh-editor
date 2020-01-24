@@ -1,6 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import 'draft-js/dist/Draft.css';
+import 'antd/dist/antd.css';
+import 'babel-polyfill';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
