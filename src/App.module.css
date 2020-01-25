@@ -16,7 +16,7 @@
 .container .inlineDiv .title {
   font-size: 50px;
   font-weight: bold;
-  color: #f37f9c;
+  color: #fe7f9c;
   margin-bottom: 60px;
 }
 .container .inlineDiv .main .btns span {
@@ -33,5 +33,5 @@
   border-radius: 4px;
 }
 .container .inlineDiv .main .editor:hover {
-  border: 1px solid #f37f9c;
+  border: 1px solid #fe7f9c;
 }

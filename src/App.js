@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from 'antd';
 import { Editor, EditorState, RichUtils, convertToRaw } from 'draft-js';
 import styles from './App.module.scss';
@@ -6,6 +6,7 @@ import styles from './App.module.scss';
 const ButtonGroup = Button.Group;
 
 const App = () => {
+	
 	const [editorState, saveEditorState] = useState(EditorState.createEmpty());
 	const [bold, saveBold] = useState(false);
 	const [italic, saveItalic] = useState(false);
@@ -62,7 +63,7 @@ const App = () => {
 							<Button icon="underline" onMouseDown={handleUnderline} style={{ color: underline ? "#FE7F9C" : "inherit"}}/>
 						</ButtonGroup>
 					</div>
-					<div className={styles.editor}>
+					<div className={styles.editor} onClick={() => }>
 						<Editor
 							editorState={editorState}
 							onChange={handleChangeEditor}
