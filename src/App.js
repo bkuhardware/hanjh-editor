@@ -11,6 +11,16 @@ const activeCSS = {
 	zIndex: 3
 };
 
+const customStyleMap = {
+	'HIGHLIGHT': {
+		background: '#FE7F9C',
+		padding: '3px',
+		borderRadius: '2px',
+		border: '0.2px solid #FE7F9C',
+		color: 'white',
+	}
+};
+
 const App = () => {
 	const editorRef = useRef(null);
 	const [editorState, saveEditorState] = useState(EditorState.createEmpty());
@@ -34,7 +44,7 @@ const App = () => {
 	const handleFocus = () => {
 		editorRef.current.focus();
 	};
-	const hanldeInlineStyle = inlineStyle => e => {
+	const handleInlineStyle = inlineStyle => e => {
 		e.preventDefault();
 		handleChangeEditor(RichUtils.toggleInlineStyle(editorState, inlineStyle));
 	};
@@ -66,16 +76,16 @@ const App = () => {
 					<div className={styles.btns}>
 						<ButtonGroup>
 							<Tooltip placement="bottom" title="Bold">
-								<Button icon="bold" onMouseDown={hanldeInlineStyle('BOLD')} style={activeStyle('BOLD')}></Button>
+								<Button icon="bold" onMouseDown={handleInlineStyle('BOLD')} style={activeStyle('BOLD')}></Button>
 							</Tooltip>
 							<Tooltip placement="bottom" title="Italic">
-								<Button icon="italic" onMouseDown={hanldeInlineStyle('ITALIC')} style={activeStyle('ITALIC')} />
+								<Button icon="italic" onMouseDown={handleInlineStyle('ITALIC')} style={activeStyle('ITALIC')} />
 							</Tooltip>
 							<Tooltip placement="bottom" title="Underline">
-								<Button icon="underline" onMouseDown={hanldeInlineStyle('UNDERLINE')} style={activeStyle('UNDERLINE')}/>
+								<Button icon="underline" onMouseDown={handleInlineStyle('UNDERLINE')} style={activeStyle('UNDERLINE')}/>
 							</Tooltip>
 							<Tooltip placement="bottom" title="Highlight">
-								<Button icon="highlight" />
+								<Button icon="highlight" onMouseDown={handleInlineStyle('HIGHLIGHT')} style={activeStyle('HIGHLIGHT')}/>
 							</Tooltip>
 							<Tooltip placement="bottom" title="Code block">
 								<Button icon="code" onMouseDown={handleBlock('code-block')} style={activeBlock('code-block')} />
@@ -91,6 +101,7 @@ const App = () => {
 							placeholder="Enter content..."
 							handleKeyCommand={handleKeyCommand}
 							blockStyleFn={blockStyleFn}
+							customStyleMap={customStyleMap}
 							//handleBeforeInput={handleBeforeInput}
 						/>
 					</div>
