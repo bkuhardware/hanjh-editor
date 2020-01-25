@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { Button, Tooltip } from 'antd';
+import _ from 'lodash';
+import classNames from 'classnames';
+import { Button, Tooltip, Popover } from 'antd';
 import { Editor, EditorState, RichUtils, convertToRaw } from 'draft-js';
 import styles from './App.module.scss';
 
@@ -11,6 +13,54 @@ const activeCSS = {
 	zIndex: 3
 };
 
+const customColorMap = {
+	'BLACK': {
+		color: 'rgba(0, 0, 0, 0.65)'
+	},
+	'RED': {
+		color: 'rgba(255, 0, 0, 0.65)'
+	},
+	'BLUE': {
+		color: 'rgba(0, 0, 255, 0.65)'
+	},
+	'LIME': {
+		color: 'rgba(0, 255, 0, 0.65)'
+	},
+	'YELLOW': {
+		color: 'rgb(255, 255, 0)'
+	},
+	'CYAN': {
+		color: 'rgb(0, 255, 255)'
+	},
+	'MAGENTA': {
+		color: 'rgb(255, 0, 255)'
+	},
+	'SILVER': {
+		color: 'rgb(192, 192, 192)'
+	},
+	'GRAY': {
+		color: 'rgb(128, 128, 128)'
+	},
+	'MAROON': {
+		color: 'rgb(128, 0, 0)'
+	},
+	'OLIVE': {
+		color: 'rgb(128, 128, 0)'
+	},
+	'GREEN': {
+		color: 'rgb(0, 128, 0)'
+	},
+	'PURPLE': {
+		color: 'rgb(128, 0, 128)'
+	},
+	'TEAL': {
+		color: 'rgb(0, 128, 128)'
+	},
+	'WHITE': {
+		color: 'rgb(255, 255, 255)'
+	}
+};
+
 const customStyleMap = {
 	'HIGHLIGHT': {
 		background: '#FE7F9C',
@@ -18,12 +68,14 @@ const customStyleMap = {
 		borderRadius: '2px',
 		border: '0.2px solid #FE7F9C',
 		color: 'white',
-	}
+	},
+	...customColorMap
 };
 
 const App = () => {
 	const editorRef = useRef(null);
 	const [editorState, saveEditorState] = useState(EditorState.createEmpty());
+	const [colorPopoverVisible, saveColorPopoverVisible] = useState(false);
 	const handleChangeEditor = editorState => {
 		saveEditorState(editorState);
 	};
@@ -63,6 +115,31 @@ const App = () => {
 		if (active) return activeCSS;
 		return {}
 	};
+	const getColorContent = () => {
+		const customColorMapKeys = _.keys(customColorMap);
+		let colorData = _.map(customColorMapKeys, colorKey => ({
+			key: colorKey,
+			...customColorMap[colorKey]
+		}));
+		colorData = _.chunk(colorData, 5);
+		return (
+			<div>
+				<div className={styles.header}>Select color</div>
+				<div className={styles.colors}>
+					{_.map(colorData, colorRow => (
+						<div key={_.uniqueId('color_row_')} className={styles.row}>
+							{_.map(colorRow, color => (
+								<span className={classNames(styles.active, styles.color)} key={color.key}>
+									<span className={styles.icon} style={{ backgroundColor: color.color }}/>
+								</span>
+							))}
+						</div>
+					))}
+				</div>
+			</div>
+		)
+	};
+	//const toggleColorPopoverVisible = () => saveColorPopoverVisible(!colorPopoverVisible);
 	// const handleBeforeInput = (chars, editorState) => {
 	// 	console.log(chars);
 	// 	console.log(editorState.getCurrentContent().toJS())
@@ -108,6 +185,16 @@ const App = () => {
 							<Tooltip placement="bottom" title="Code block">
 								<Button icon="code" onMouseDown={handleBlock('code-block')} style={activeBlock('code-block')} />
 							</Tooltip>
+							<Popover
+								placement="bottomLeft"
+								content={getColorContent()}
+								popupClassName={styles.popover}
+								trigger="click"
+								visible={colorPopoverVisible}
+								onVisibleChange={saveColorPopoverVisible}
+							>
+								<Button icon="font-colors" />
+							</Popover>
 							<Button icon="arrow-up" onClick={handleFocus} />
 						</ButtonGroup>
 					</div>
