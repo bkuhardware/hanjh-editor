@@ -75,6 +75,24 @@ const App = () => {
 				<div className={styles.main}>
 					<div className={styles.btns}>
 						<ButtonGroup>
+							<Tooltip placement="bottom" title="Header one">
+								<Button onMouseDown={handleBlock('header-one')} style={activeBlock('header-one')}>H1</Button>
+							</Tooltip>
+							<Tooltip placement="bottom" title="Header two">
+								<Button onMouseDown={handleBlock('header-two')} style={activeBlock('header-two')}>H2</Button>
+							</Tooltip>
+							<Tooltip placement="bottom" title="Header three">
+								<Button onMouseDown={handleBlock('header-three')} style={activeBlock('header-three')}>H3</Button>
+							</Tooltip>
+							<Tooltip placement="bottom" title="Header four">
+								<Button onMouseDown={handleBlock('header-four')} style={activeBlock('header-four')}>H4</Button>
+							</Tooltip>
+							<Tooltip placement="bottom" title="Header five">
+								<Button onMouseDown={handleBlock('header-five')} style={activeBlock('header-five')}>H5</Button>
+							</Tooltip>
+							<Tooltip placement="bottom" title="Header six">
+								<Button onMouseDown={handleBlock('header-six')} style={activeBlock('header-six')}>H6</Button>
+							</Tooltip>
 							<Tooltip placement="bottom" title="Bold">
 								<Button icon="bold" onMouseDown={handleInlineStyle('BOLD')} style={activeStyle('BOLD')}></Button>
 							</Tooltip>

@@ -23,6 +23,11 @@
   width: 20px;
   display: inline-block;
 }
+.container .inlineDiv .main .btns button {
+  width: 32px;
+  padding: 0;
+  font-weight: 600;
+}
 .container .inlineDiv .main .editor {
   padding: 16px;
   width: 80%;
