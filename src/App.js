@@ -6,51 +6,40 @@ import styles from './App.module.scss';
 const ButtonGroup = Button.Group;
 
 const App = () => {
-	
+	const editorRef = useRef(null);
 	const [editorState, saveEditorState] = useState(EditorState.createEmpty());
-	const [bold, saveBold] = useState(false);
-	const [italic, saveItalic] = useState(false);
-	const [underline, saveUnderline] = useState(false);
 	const handleChangeEditor = editorState => {
 		saveEditorState(editorState);
 	};
 	const handleKeyCommand = command => {
 		const newEditorState = RichUtils.handleKeyCommand(editorState, command);
 		if (newEditorState) {
-			saveEditorState(newEditorState);
+			handleChangeEditor(newEditorState);
 			return 'handled';
 		}
 		return 'not-handled';
 	};
-	const handleBold = (e) => {
-		e.preventDefault();
-		const selectionState = editorState.getSelection();
-		if (selectionState.getAnchorKey() === selectionState.getFocusKey() && selectionState.getAnchorOffset() === selectionState.getFocusOffset()) {
-			saveBold(!bold);
-		}
-		saveEditorState(RichUtils.toggleInlineStyle(editorState, 'BOLD'));
-
+	const handleFocus = () => {
+		editorRef.current.focus();
 	};
-	const handleItalic = (e) => {
+	const hanldeInlineStyle = inlineStyle => e => {
 		e.preventDefault();
-		const selectionState = editorState.getSelection();
-		if (selectionState.getAnchorKey() === selectionState.getFocusKey() && selectionState.getAnchorOffset() === selectionState.getFocusOffset()) {
-			saveItalic(!italic);
-		}
-		saveEditorState(RichUtils.toggleInlineStyle(editorState, 'ITALIC'));
+		handleChangeEditor(RichUtils.toggleInlineStyle(editorState, inlineStyle));
 	};
-	const handleUnderline = (e) => {
-		e.preventDefault();
-		const selectionState = editorState.getSelection();
-		if (selectionState.getAnchorKey() === selectionState.getFocusKey() && selectionState.getAnchorOffset() === selectionState.getFocusOffset()) {
-			saveUnderline(!underline);
-		}
-		saveEditorState(RichUtils.toggleInlineStyle(editorState, 'UNDERLINE'));
-	};
+	const activeStyle = inlineStyle => {
+		const active = currentInlineStyles.has(inlineStyle);
+		if (active) return {
+			color: '#FE7F9C',
+			borderColor: '#FE7F9C',
+			zIndex: 3
+		};
+		return {};
+	}
 	// const handleBeforeInput = (chars, editorState) => {
 	// 	console.log(chars);
 	// 	console.log(editorState.getCurrentContent().toJS())
 	// }
+	const currentInlineStyles = editorState.getCurrentInlineStyle();
 	return (
 		<div className={styles.container}>
 			<div className={styles.inlineDiv}>
@@ -58,13 +47,15 @@ const App = () => {
 				<div className={styles.main}>
 					<div className={styles.btns}>
 						<ButtonGroup>
-							<Button icon="bold" onMouseDown={handleBold} style={{ color: bold ? "#FE7F9C" : "inherit"}}/>
-							<Button icon="italic" onMouseDown={handleItalic} style={{ color: italic ? "#FE7F9C" : "inherit"}} />
-							<Button icon="underline" onMouseDown={handleUnderline} style={{ color: underline ? "#FE7F9C" : "inherit"}}/>
+							<Button icon="bold" onMouseDown={hanldeInlineStyle('BOLD')} style={activeStyle('BOLD')}/>
+							<Button icon="italic" onMouseDown={hanldeInlineStyle('ITALIC')} style={activeStyle('ITALIC')} />
+							<Button icon="underline" onMouseDown={hanldeInlineStyle('UNDERLINE')} style={activeStyle('UNDERLINE')}/>
+							<Button icon="arrow-up" onClick={handleFocus} />
 						</ButtonGroup>
 					</div>
-					<div className={styles.editor} onClick={() => }>
+					<div className={styles.editor} onClick={handleFocus}>
 						<Editor
+							ref={editorRef}
 							editorState={editorState}
 							onChange={handleChangeEditor}
 							placeholder="Enter content..."
