@@ -1,0 +1,41 @@
+.container {
+    width: 80%;
+    margin: auto;
+    height: 100vh;
+    position: relative;
+    font-size: 1.1em;
+    .inlineDiv {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        width: 100%;
+        .title {
+            font-size: 50px;
+            font-weight: bold;
+            color: #F37F9C;
+            margin-bottom: 60px;
+        }
+        .main {
+            .btns {
+                span {
+                    width: 20px;
+                    display: inline-block;
+                }
+            }
+            .editor {
+                padding: 16px;
+                width: 80%;
+                margin: auto;
+                margin-top: 25px;
+                border: 1px solid rgba(20, 20, 20, 0.06);
+                height: 300px;
+                border-radius: 4px;
+                &:hover {
+                    border: 1px solid #F37F9C;
+                }
+            }
+        }
+    }
+}

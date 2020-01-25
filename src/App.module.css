@@ -1,0 +1,37 @@
+.container {
+  width: 80%;
+  margin: auto;
+  height: 100vh;
+  position: relative;
+  font-size: 1.1em;
+}
+.container .inlineDiv {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 100%;
+}
+.container .inlineDiv .title {
+  font-size: 50px;
+  font-weight: bold;
+  color: #f37f9c;
+  margin-bottom: 60px;
+}
+.container .inlineDiv .main .btns span {
+  width: 20px;
+  display: inline-block;
+}
+.container .inlineDiv .main .editor {
+  padding: 16px;
+  width: 80%;
+  margin: auto;
+  margin-top: 25px;
+  border: 1px solid rgba(20, 20, 20, 0.06);
+  height: 300px;
+  border-radius: 4px;
+}
+.container .inlineDiv .main .editor:hover {
+  border: 1px solid #f37f9c;
+}
