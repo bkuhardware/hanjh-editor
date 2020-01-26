@@ -58,6 +58,12 @@
 .container .inlineDiv .main .editor:hover {
   border: 1px solid #fe7f9c;
 }
+.container .inlineDiv .main .editor .rightAlign * {
+  text-align: right;
+}
+.container .inlineDiv .main .editor .centerAlign * {
+  text-align: center;
+}
 .container .inlineDiv .main .editor .codeBlock {
   font-weight: bold;
   color: white;

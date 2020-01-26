@@ -60,6 +60,12 @@
                 &:hover {
                     border: 1px solid #FE7F9C;
                 }
+                .rightAlign * {
+                    text-align: right;
+                }
+                .centerAlign * {
+                    text-align: center;
+                }
                 .codeBlock {
                     font-weight: bold;
                     //color: orange;

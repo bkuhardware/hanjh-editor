@@ -1,118 +1,13 @@
 import React, { useState, useRef } from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
+import * as config from './config';
 import { Button, Tooltip, Popover, Dropdown, Menu, Icon } from 'antd';
-import { Editor, EditorState, RichUtils, Modifier, convertToRaw } from 'draft-js';
+import { Editor, EditorState, RichUtils, Modifier } from 'draft-js';
 import styles from './App.module.scss';
-import { underline } from 'ansi-colors';
 
 const ButtonGroup = Button.Group;
 const MenuItem = Menu.Item;
-
-const activeCSS = {
-	color: '#FE7F9C',
-	borderColor: '#FE7F9C',
-	zIndex: 3
-};
-
-const headers = [
-	{
-		type: 'header-one',
-		title: 'Header one'
-	},
-	{
-		type: 'header-two',
-		title: 'Header two'
-	},
-	{
-		type: 'header-three',
-		title: 'Header three'
-	},
-	{
-		type: 'header-four',
-		title: 'Header four'
-	},
-	{
-		type: 'header-five',
-		title: 'Header five'
-	},
-	{
-		type: 'header-six',
-		title: 'Header six'
-	}
-];
-
-const lists =[
-	{
-		type: 'unordered-list-item',
-		title: 'Unordered list',
-		icon: 'unordered-list'
-	},
-	{
-		type: 'ordered-list-item',
-		title: 'Ordered list',
-		icon: 'ordered-list'
-	}
-];
-
-const customColorMap = {
-	'BLACK': {
-		color: 'rgba(0, 0, 0, 0.65)'
-	},
-	'RED': {
-		color: 'rgba(255, 0, 0, 0.65)'
-	},
-	'BLUE': {
-		color: 'rgba(0, 0, 255, 0.65)'
-	},
-	'LIME': {
-		color: 'rgba(0, 255, 0, 0.65)'
-	},
-	'YELLOW': {
-		color: 'rgb(255, 255, 0)'
-	},
-	'CYAN': {
-		color: 'rgb(0, 255, 255)'
-	},
-	'MAGENTA': {
-		color: 'rgb(255, 0, 255)'
-	},
-	'SILVER': {
-		color: 'rgb(192, 192, 192)'
-	},
-	'GRAY': {
-		color: 'rgb(128, 128, 128)'
-	},
-	'MAROON': {
-		color: 'rgb(128, 0, 0)'
-	},
-	'OLIVE': {
-		color: 'rgb(128, 128, 0)'
-	},
-	'GREEN': {
-		color: 'rgb(0, 128, 0)'
-	},
-	'PURPLE': {
-		color: 'rgb(128, 0, 128)'
-	},
-	'TEAL': {
-		color: 'rgb(0, 128, 128)'
-	},
-	'WHITE': {
-		color: 'rgb(255, 255, 255)'
-	}
-};
-
-const customStyleMap = {
-	'HIGHLIGHT': {
-		background: '#FE7F9C',
-		padding: '3px',
-		borderRadius: '2px',
-		border: '0.2px solid #FE7F9C',
-		color: 'white',
-	},
-	...customColorMap
-};
 
 const App = () => {
 	const editorRef = useRef(null);
@@ -120,6 +15,7 @@ const App = () => {
 	const [colorPopoverVisible, saveColorPopoverVisible] = useState(false);
 	const [headerVisible, saveHeaderVisible] = useState(false);
 	const [listVisible, saveListVisible] = useState(false);
+	const [alignVisible, saveAlignVisible] = useState(false);
 	const handleChangeEditor = editorState => {
 		saveEditorState(editorState);
 	};
@@ -136,7 +32,13 @@ const App = () => {
 		if (blockType === 'code-block') {
 			return styles.codeBlock;
 		}
-	}
+		if (_.endsWith(blockType, 'align-center')) {
+			return styles.centerAlign;
+		}
+		if (_.endsWith(blockType, 'align-right')) {
+			return styles.rightAlign;
+		}
+	};
 	const handleFocus = () => {
 		editorRef.current.focus();
 	};
@@ -149,12 +51,31 @@ const App = () => {
 		handleChangeEditor(RichUtils.toggleBlockType(editorState, blockType));
 		if (callback) callback();
 	};
+	const handleAlignBlock = (alignType, callback) => e => {
+		e.preventDefault();
+		const parts = _.split(getBlockType(), '_');
+		const currentBlockType = parts[0];
+		if (currentBlockType !== 'code-block') {
+			if (!parts[1]) {
+				if (alignType !== 'align-left') handleChangeEditor(RichUtils.toggleBlockType(editorState, `${currentBlockType}_${alignType}`));
+			}
+			else {
+				if (parts[1] === alignType || alignType === 'align-left') {
+					handleChangeEditor(RichUtils.toggleBlockType(editorState,  currentBlockType));
+				}
+				else {
+					handleChangeEditor(RichUtils.toggleBlockType(editorState, `${currentBlockType}_${alignType}`));
+				}
+			}
+		}
+		if (callback) callback();
+	}
 	const handleToggleColor = color => e => {
 		e.preventDefault();
 		const selection = editorState.getSelection();
 
 		// Let's just allow one color at a time. Turn off all active colors.
-		const nextContentState = _.keys(customColorMap)
+		const nextContentState = _.keys(config.customColorMap)
 		.reduce((contentState, color) => {
 			return Modifier.removeInlineStyle(contentState, selection, color)
 		}, editorState.getCurrentContent());
@@ -170,7 +91,7 @@ const App = () => {
 		// Unset style override for current color.
 		if (selection.isCollapsed()) {
 			nextEditorState = currentStyle.reduce((state, color) => {
-				return !!customColorMap[color] ? RichUtils.toggleInlineStyle(state, color) : state;
+				return !!config.customColorMap[color] ? RichUtils.toggleInlineStyle(state, color) : state;
 			}, nextEditorState);
 		}
 
@@ -191,27 +112,33 @@ const App = () => {
 	};
 	const activeStyle = inlineStyle => {
 		const active = editorState.getCurrentInlineStyle().has(inlineStyle);
-		if (active) return activeCSS;
+		if (active) return config.activeCSS;
 		return {};
 	};
 	const activeBlock = blockType => {
-		if (getBlockType() === blockType) return activeCSS;
+		if (getBlockType() === blockType) return config.activeCSS;
 		return {}
 	};
 	const activeHeader = () => {
 		const active = _.startsWith(getBlockType(), 'header-');
-		if (active) return activeCSS;
+		if (active) return config.activeCSS;
 		return {}
 	};
 	const getListIcon = () => {
-		const blockType = getBlockType();
+		const blockType = _.split(getBlockType(), '_')[0];
 		if (blockType === 'unordered-list-item') return 'unordered-list';
 		if (blockType === 'ordered-list-item') return 'ordered-list';
 	};
-	const customColorMapKeys = _.keys(customColorMap);
+	const getAlignKeyAndIcon = () => {
+		const blockType = getBlockType();
+		if (_.endsWith(blockType, '_align-center')) return 'align-center';
+		if (_.endsWith(blockType, '_align-right')) return 'align-right';
+		return 'align-left';
+	};
+	const customColorMapKeys = _.keys(config.customColorMap);
 	let colorData = _.map(customColorMapKeys, colorKey => ({
 		key: colorKey,
-		...customColorMap[colorKey]
+		...config.customColorMap[colorKey]
 	}));
 	colorData = _.chunk(colorData, 5);
 	const currentInlineStyle = editorState.getCurrentInlineStyle();
@@ -228,7 +155,7 @@ const App = () => {
 	// 	console.log(chars);
 	// 	console.log(editorState.getCurrentContent().toJS())
 	// }
-
+	
 	return (
 		<div className={styles.container}>
 			<div className={styles.inlineDiv}>
@@ -240,9 +167,9 @@ const App = () => {
 								trigger={['hover']}
 								overlay={(
 									<Menu
-										selectedKeys={[getBlockType()]}
+										selectedKeys={[_.split(getBlockType(), '_')[0]]}
 									>
-										{_.map(headers, header => (
+										{_.map(config.headers, header => (
 											<MenuItem key={header.type}>
 												<span onMouseDown={handleBlock(header.type, () => saveHeaderVisible(false))}>{header.title}</span>
 											</MenuItem>
@@ -260,9 +187,9 @@ const App = () => {
 								trigger={['hover']}
 								overlay={(
 									<Menu
-										selectedKeys={[getBlockType()]}
+										selectedKeys={[_.split(getBlockType(), '_')[0]]}
 									>
-										{_.map(lists, list => (
+										{_.map(config.lists, list => (
 											<MenuItem key={list.type}>
 												<span onMouseDown={handleBlock(list.type, () => saveListVisible(false))}>
 													<Icon type={list.icon} style={{ fontSize: '16px', marginRight: '6px' }}/>
@@ -279,6 +206,9 @@ const App = () => {
 							>
 								<Button icon={getListIcon()}/>
 							</Dropdown>
+							<Tooltip placement="bottom" title="Code block">
+								<Button icon="code" onMouseDown={handleBlock('code-block')} style={activeBlock('code-block')} />
+							</Tooltip>
 							<Tooltip placement="bottom" title="Bold">
 								<Button icon="bold" onMouseDown={handleInlineStyle('BOLD')} style={activeStyle('BOLD')}></Button>
 							</Tooltip>
@@ -288,12 +218,32 @@ const App = () => {
 							<Tooltip placement="bottom" title="Underline">
 								<Button icon="underline" onMouseDown={handleInlineStyle('UNDERLINE')} style={activeStyle('UNDERLINE')}/>
 							</Tooltip>
+							<Dropdown
+								trigger={['hover']}
+								placement="bottomLeft"
+								overlay={(
+									<Menu
+										selectedKeys={[getAlignKeyAndIcon()]}
+									>
+										{_.map(config.aligns, alignVal => (
+											<MenuItem key={alignVal.type}>
+												<span onMouseDown={handleAlignBlock(alignVal.type, () => saveAlignVisible(false))}>
+													<Icon type={alignVal.icon} style={{ fontSize: '16px', marginRight: '6px' }}/>
+													<span>{alignVal.title}</span>
+												</span>
+											</MenuItem>
+										))}
+									</Menu>
+								)}
+								visible={alignVisible}
+								onVisibleChange={saveAlignVisible}
+							>
+								<Button icon={getAlignKeyAndIcon()} />
+							</Dropdown>
 							<Tooltip placement="bottom" title="Highlight">
 								<Button icon="highlight" onMouseDown={handleInlineStyle('HIGHLIGHT')} style={activeStyle('HIGHLIGHT')}/>
 							</Tooltip>
-							<Tooltip placement="bottom" title="Code block">
-								<Button icon="code" onMouseDown={handleBlock('code-block')} style={activeBlock('code-block')} />
-							</Tooltip>
+							
 							<Popover
 								placement="bottomLeft"
 								content={(
@@ -321,7 +271,7 @@ const App = () => {
 								visible={colorPopoverVisible}
 								onVisibleChange={saveColorPopoverVisible}
 							>
-								<Button icon="font-colors" style={{ color: customColorMap[activeKey].color }}/>
+								<Button icon="font-colors" style={{ color: config.customColorMap[activeKey].color }}/>
 							</Popover>
 							<Button icon="arrow-up" onClick={handleFocus} />
 						</ButtonGroup>
@@ -334,7 +284,8 @@ const App = () => {
 							placeholder="Enter content..."
 							handleKeyCommand={handleKeyCommand}
 							blockStyleFn={blockStyleFn}
-							customStyleMap={customStyleMap}
+							customStyleMap={config.customStyleMap}
+							blockRenderMap={config.extendedBlockRenderMap}
 							//handleBeforeInput={handleBeforeInput}
 						/>
 					</div>
