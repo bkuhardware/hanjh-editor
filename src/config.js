@@ -179,10 +179,10 @@ export const customColorMap = {
 
 export const customStyleMap = {
 	'HIGHLIGHT': {
-		background: '#FE7F9C',
+		background: 'tomato',
 		padding: '3px',
 		borderRadius: '2px',
-		border: '0.2px solid #FE7F9C',
+		border: '0.2px solid tomato',
 		color: 'white',
 	},
 	...customColorMap

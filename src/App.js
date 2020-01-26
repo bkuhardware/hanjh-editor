@@ -2,20 +2,51 @@ import React, { useState, useRef } from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
 import * as config from './config';
-import { Button, Tooltip, Popover, Dropdown, Menu, Icon } from 'antd';
-import { Editor, EditorState, RichUtils, Modifier } from 'draft-js';
+import { Button, Tooltip, Popover, Dropdown, Menu, Icon, Input, message } from 'antd';
+import { Editor, EditorState, RichUtils, Modifier, CompositeDecorator, convertToRaw } from 'draft-js';
 import styles from './App.module.scss';
 
 const ButtonGroup = Button.Group;
 const MenuItem = Menu.Item;
+const { Search } = Input;
+
+const findLinkEntity = (contentBlock, callback, contentState) => {
+	contentBlock.findEntityRanges((character) => {
+		const entityKey = character.getEntity();
+		if (entityKey === null) {
+			return false;
+		}
+		return contentState.getEntity(entityKey).getType() === 'LINK';
+	}, callback);
+};
+
+const Link = ({ contentState, entityKey, children }) => {
+	const { href } = contentState.getEntity(entityKey).getData();
+	return (
+		<Tooltip placement="top" title={`Link to https://${href}`}><span className={styles.link} onClick={e => window.location.href = `https://${href}`}>{children}</span></Tooltip>
+	);
+};
+
+const checkHref = href => {
+	const hrefRegex = /^([a-zA-Z0-9]+(\.[a-zA-Z0-9]+)+.*)$/;
+	return hrefRegex.test(href);
+};
 
 const App = () => {
 	const editorRef = useRef(null);
-	const [editorState, saveEditorState] = useState(EditorState.createEmpty());
+	const decorator = new CompositeDecorator([
+		{
+			strategy: findLinkEntity,
+			component: Link
+		}
+	]);
+	const [editorState, saveEditorState] = useState(EditorState.createEmpty(decorator));
 	const [colorPopoverVisible, saveColorPopoverVisible] = useState(false);
 	const [headerVisible, saveHeaderVisible] = useState(false);
 	const [listVisible, saveListVisible] = useState(false);
 	const [alignVisible, saveAlignVisible] = useState(false);
+	const [linkVisible, saveLinkVisible] = useState(false);
+	const [href, saveHref] = useState('');
 	const handleChangeEditor = editorState => {
 		saveEditorState(editorState);
 	};
@@ -41,6 +72,9 @@ const App = () => {
 	};
 	const handleFocus = () => {
 		editorRef.current.focus();
+	};
+	const handleChangeHref = e => {
+		saveHref(e.target.value);
 	};
 	const handleInlineStyle = inlineStyle => e => {
 		e.preventDefault();
@@ -69,7 +103,26 @@ const App = () => {
 			}
 		}
 		if (callback) callback();
-	}
+	};
+	const handleAddLink = e => {
+		const selection = editorState.getSelection();
+		const contentState = editorState.getCurrentContent();
+		let newContentState = contentState.createEntity('LINK', 'MUTABLE', { href });
+		const entityKey = newContentState.getLastCreatedEntityKey();
+		newContentState = Modifier.applyEntity(
+			newContentState,
+			selection,
+			entityKey
+		);
+		const newEditorState = EditorState.push(
+			editorState,
+			newContentState,
+			'add-new-link'
+		);
+		handleChangeEditor(newEditorState);
+		saveLinkVisible(false);
+		saveHref('');
+	};
 	const handleToggleColor = color => e => {
 		e.preventDefault();
 		const selection = editorState.getSelection();
@@ -128,6 +181,7 @@ const App = () => {
 		const blockType = _.split(getBlockType(), '_')[0];
 		if (blockType === 'unordered-list-item') return 'unordered-list';
 		if (blockType === 'ordered-list-item') return 'ordered-list';
+		return 'dash';
 	};
 	const getAlignKeyAndIcon = () => {
 		const blockType = getBlockType();
@@ -209,6 +263,20 @@ const App = () => {
 							<Tooltip placement="bottom" title="Code block">
 								<Button icon="code" onMouseDown={handleBlock('code-block')} style={activeBlock('code-block')} />
 							</Tooltip>
+							<Popover
+								placement="bottomLeft"
+								popupClassName={styles.linkPopover}
+								trigger="hover"
+								visible={linkVisible}
+								onVisibleChange={saveLinkVisible}
+								content={(
+									<div className={styles.content}>
+										<Search addonBefore={<span>https://</span>} enterButton={<Button type="primary" icon="check" disabled={!checkHref(href)} style={{ width: 60 }}/>} value={href} placeholder="Enter href..." onChange={handleChangeHref} onSearch={handleAddLink} />
+									</div>
+								)}
+							>
+								<Button icon="link" />
+							</Popover>
 							<Tooltip placement="bottom" title="Bold">
 								<Button icon="bold" onMouseDown={handleInlineStyle('BOLD')} style={activeStyle('BOLD')}></Button>
 							</Tooltip>

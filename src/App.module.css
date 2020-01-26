@@ -64,6 +64,14 @@
 .container .inlineDiv .main .editor .centerAlign * {
   text-align: center;
 }
+.container .inlineDiv .main .editor .link {
+  color: darksalmon;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.container .inlineDiv .main .editor .link:hover {
+  opacity: 0.7;
+}
 .container .inlineDiv .main .editor .codeBlock {
   font-weight: bold;
   color: white;
@@ -125,4 +133,10 @@
   padding: 5px 12px;
   line-height: 22px;
   display: inline-block;
+}
+.linkPopover .content {
+  width: 400px;
+}
+.linkPopover .content input {
+  width: 100%;
 }
