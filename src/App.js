@@ -1,17 +1,45 @@
 import React, { useState, useRef } from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
-import { Button, Tooltip, Popover } from 'antd';
+import { Button, Tooltip, Popover, Dropdown, Menu } from 'antd';
 import { Editor, EditorState, RichUtils, Modifier, convertToRaw } from 'draft-js';
 import styles from './App.module.scss';
 
 const ButtonGroup = Button.Group;
+const MenuItem = Menu.Item;
 
 const activeCSS = {
 	color: '#FE7F9C',
 	borderColor: '#FE7F9C',
 	zIndex: 3
 };
+
+const headers = [
+	{
+		type: 'header-one',
+		title: 'Header one'
+	},
+	{
+		type: 'header-two',
+		title: 'Header two'
+	},
+	{
+		type: 'header-three',
+		title: 'Header three'
+	},
+	{
+		type: 'header-four',
+		title: 'Header four'
+	},
+	{
+		type: 'header-five',
+		title: 'Header five'
+	},
+	{
+		type: 'header-six',
+		title: 'Header six'
+	}
+];
 
 const customColorMap = {
 	'BLACK': {
@@ -76,6 +104,7 @@ const App = () => {
 	const editorRef = useRef(null);
 	const [editorState, saveEditorState] = useState(EditorState.createEmpty());
 	const [colorPopoverVisible, saveColorPopoverVisible] = useState(false);
+	const [headerVisible, saveHeaderVisible] = useState(false);
 	const handleChangeEditor = editorState => {
 		saveEditorState(editorState);
 	};
@@ -100,9 +129,10 @@ const App = () => {
 		e.preventDefault();
 		handleChangeEditor(RichUtils.toggleInlineStyle(editorState, inlineStyle));
 	};
-	const handleBlock = blockType => e => {
+	const handleBlock = (blockType, callback) => e => {
 		e.preventDefault();
 		handleChangeEditor(RichUtils.toggleBlockType(editorState, blockType));
+		if (callback) callback();
 	};
 	const handleToggleColor = color => e => {
 		e.preventDefault();
@@ -144,14 +174,25 @@ const App = () => {
 		e.preventDefault();
 		saveColorPopoverVisible(!colorPopoverVisible);
 	};
+	const toggleHeaderVisible = e => {
+		e.preventDefault();
+		saveHeaderVisible(!headerVisible);
+	};
+	const getBlockType = () => {
+		const selectionState = editorState.getSelection();
+		return editorState.getCurrentContent().getBlockForKey(selectionState.getStartKey()).getType();
+	};
 	const activeStyle = inlineStyle => {
 		const active = editorState.getCurrentInlineStyle().has(inlineStyle);
 		if (active) return activeCSS;
 		return {};
 	};
 	const activeBlock = blockType => {
-		const selectionState = editorState.getSelection();
-		const active = editorState.getCurrentContent().getBlockForKey(selectionState.getStartKey()).getType() === blockType;
+		if (getBlockType() === blockType) return activeCSS;
+		return {}
+	};
+	const activeHeader = () => {
+		const active = _.startsWith(getBlockType(), 'header-');
 		if (active) return activeCSS;
 		return {}
 	};
@@ -183,24 +224,24 @@ const App = () => {
 				<div className={styles.main}>
 					<div className={styles.btns}>
 						<ButtonGroup>
-							<Tooltip placement="bottom" title="Header one">
-								<Button onMouseDown={handleBlock('header-one')} style={activeBlock('header-one')}>H1</Button>
-							</Tooltip>
-							<Tooltip placement="bottom" title="Header two">
-								<Button onMouseDown={handleBlock('header-two')} style={activeBlock('header-two')}>H2</Button>
-							</Tooltip>
-							<Tooltip placement="bottom" title="Header three">
-								<Button onMouseDown={handleBlock('header-three')} style={activeBlock('header-three')}>H3</Button>
-							</Tooltip>
-							<Tooltip placement="bottom" title="Header four">
-								<Button onMouseDown={handleBlock('header-four')} style={activeBlock('header-four')}>H4</Button>
-							</Tooltip>
-							<Tooltip placement="bottom" title="Header five">
-								<Button onMouseDown={handleBlock('header-five')} style={activeBlock('header-five')}>H5</Button>
-							</Tooltip>
-							<Tooltip placement="bottom" title="Header six">
-								<Button onMouseDown={handleBlock('header-six')} style={activeBlock('header-six')}>H6</Button>
-							</Tooltip>
+							<Dropdown
+								trigger={['click']}
+								overlay={(
+									<Menu
+										selectedKeys={[getBlockType()]}
+									>
+										{_.map(headers, header => (
+											<MenuItem key={header.type}>
+												<span onMouseDown={handleBlock(header.type, () => saveHeaderVisible(false))}>{header.title}</span>
+											</MenuItem>
+										))}
+									</Menu>
+								)}
+								visible={headerVisible}
+								placement="bottomCenter"
+							>
+								<Button onMouseDown={toggleHeaderVisible} style={activeHeader()}>H</Button>
+							</Dropdown>
 							<Tooltip placement="bottom" title="Bold">
 								<Button icon="bold" onMouseDown={handleInlineStyle('BOLD')} style={activeStyle('BOLD')}></Button>
 							</Tooltip>
