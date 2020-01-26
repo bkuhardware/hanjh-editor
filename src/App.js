@@ -2,8 +2,8 @@ import React, { useState, useRef } from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
 import * as config from './config';
-import { Button, Tooltip, Popover, Dropdown, Menu, Icon, Input, message } from 'antd';
-import { Editor, EditorState, RichUtils, Modifier, CompositeDecorator, convertToRaw } from 'draft-js';
+import { Button, Tooltip, Popover, Dropdown, Menu, Icon, Input } from 'antd';
+import { Editor, EditorState, RichUtils, Modifier, CompositeDecorator } from 'draft-js';
 import styles from './App.module.scss';
 
 const ButtonGroup = Button.Group;
