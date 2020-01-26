@@ -133,3 +133,14 @@
         }
     }
 }
+
+.overlay {
+    :global(.ant-dropdown-menu-item) {
+        padding: 0;
+        & > span {
+            padding: 5px 12px;
+            line-height: 22px;
+            display: inline-block;
+        }
+    }
+}

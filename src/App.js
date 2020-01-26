@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
-import { Button, Tooltip, Popover, Dropdown, Menu } from 'antd';
+import { Button, Tooltip, Popover, Dropdown, Menu, Icon } from 'antd';
 import { Editor, EditorState, RichUtils, Modifier, convertToRaw } from 'draft-js';
 import styles from './App.module.scss';
+import { underline } from 'ansi-colors';
 
 const ButtonGroup = Button.Group;
 const MenuItem = Menu.Item;
@@ -38,6 +39,19 @@ const headers = [
 	{
 		type: 'header-six',
 		title: 'Header six'
+	}
+];
+
+const lists =[
+	{
+		type: 'unordered-list-item',
+		title: 'Unordered list',
+		icon: 'unordered-list'
+	},
+	{
+		type: 'ordered-list-item',
+		title: 'Ordered list',
+		icon: 'ordered-list'
 	}
 ];
 
@@ -105,6 +119,7 @@ const App = () => {
 	const [editorState, saveEditorState] = useState(EditorState.createEmpty());
 	const [colorPopoverVisible, saveColorPopoverVisible] = useState(false);
 	const [headerVisible, saveHeaderVisible] = useState(false);
+	const [listVisible, saveListVisible] = useState(false);
 	const handleChangeEditor = editorState => {
 		saveEditorState(editorState);
 	};
@@ -170,14 +185,6 @@ const App = () => {
 		handleChangeEditor(nextEditorState);
 		saveColorPopoverVisible(false);
 	};
-	const handleVisibleChange = e => {
-		e.preventDefault();
-		saveColorPopoverVisible(!colorPopoverVisible);
-	};
-	const toggleHeaderVisible = e => {
-		e.preventDefault();
-		saveHeaderVisible(!headerVisible);
-	};
 	const getBlockType = () => {
 		const selectionState = editorState.getSelection();
 		return editorState.getCurrentContent().getBlockForKey(selectionState.getStartKey()).getType();
@@ -195,6 +202,11 @@ const App = () => {
 		const active = _.startsWith(getBlockType(), 'header-');
 		if (active) return activeCSS;
 		return {}
+	};
+	const getListIcon = () => {
+		const blockType = getBlockType();
+		if (blockType === 'unordered-list-item') return 'unordered-list';
+		if (blockType === 'ordered-list-item') return 'ordered-list';
 	};
 	const customColorMapKeys = _.keys(customColorMap);
 	let colorData = _.map(customColorMapKeys, colorKey => ({
@@ -225,7 +237,7 @@ const App = () => {
 					<div className={styles.btns}>
 						<ButtonGroup>
 							<Dropdown
-								trigger={['click']}
+								trigger={['hover']}
 								overlay={(
 									<Menu
 										selectedKeys={[getBlockType()]}
@@ -237,10 +249,35 @@ const App = () => {
 										))}
 									</Menu>
 								)}
+								overlayClassName={styles.overlay}
 								visible={headerVisible}
 								placement="bottomCenter"
+								onVisibleChange={saveHeaderVisible}
 							>
-								<Button onMouseDown={toggleHeaderVisible} style={activeHeader()}>H</Button>
+								<Button style={activeHeader()}>H</Button>
+							</Dropdown>
+							<Dropdown
+								trigger={['hover']}
+								overlay={(
+									<Menu
+										selectedKeys={[getBlockType()]}
+									>
+										{_.map(lists, list => (
+											<MenuItem key={list.type}>
+												<span onMouseDown={handleBlock(list.type, () => saveListVisible(false))}>
+													<Icon type={list.icon} style={{ fontSize: '16px', marginRight: '6px' }}/>
+													<span>{list.title}</span>
+												</span>
+											</MenuItem>
+										))}
+									</Menu>
+								)}
+								overlayClassName={styles.overlay}
+								visible={listVisible}
+								placement="bottomLeft"
+								onVisibleChange={saveListVisible}
+							>
+								<Button icon={getListIcon()}/>
 							</Dropdown>
 							<Tooltip placement="bottom" title="Bold">
 								<Button icon="bold" onMouseDown={handleInlineStyle('BOLD')} style={activeStyle('BOLD')}></Button>
@@ -280,11 +317,11 @@ const App = () => {
 									</div>
 								)}
 								popupClassName={styles.popover}
-								trigger="click"
+								trigger="hover"
 								visible={colorPopoverVisible}
-								// onVisibleChange={saveColorPopoverVisible}
+								onVisibleChange={saveColorPopoverVisible}
 							>
-								<Button icon="font-colors" onMouseDown={handleVisibleChange} style={{ color: customColorMap[activeKey].color }}/>
+								<Button icon="font-colors" style={{ color: customColorMap[activeKey].color }}/>
 							</Popover>
 							<Button icon="arrow-up" onClick={handleFocus} />
 						</ButtonGroup>

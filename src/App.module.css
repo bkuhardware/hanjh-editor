@@ -112,3 +112,11 @@
 .popover .colors .row .active {
   background-color: rgba(128, 128, 128, 0.2);
 }
+.overlay :global(.ant-dropdown-menu-item) {
+  padding: 0;
+}
+.overlay :global(.ant-dropdown-menu-item) > span {
+  padding: 5px 12px;
+  line-height: 22px;
+  display: inline-block;
+}
