@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import 'babel-polyfill';
+import 'es6-shim';
 import './index.css';
 import 'draft-js/dist/Draft.css';
 import App from './App';
