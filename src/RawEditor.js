@@ -2,8 +2,9 @@ import React, { useState, useRef } from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
 import * as config from './config';
-import { Button, Tooltip, Popover, Dropdown, Menu, Icon, Input } from 'antd';
-import { EditorState, RichUtils, Modifier, convertFromRaw } from 'draft-js';
+import { Button, Tooltip, Popover, Dropdown, Menu, Icon, Input, Modal } from 'antd';
+import { stateToHTML } from 'draft-js-export-html';
+import { EditorState, RichUtils, Modifier } from 'draft-js';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
 import createEmojiPlugin from 'draft-js-emoji-plugin';
 import createStickerPlugin from 'draft-js-sticker-plugin';
@@ -94,9 +95,11 @@ const RawEditor = () => {
 	const [listVisible, saveListVisible] = useState(false);
 	const [alignVisible, saveAlignVisible] = useState(false);
     const [linkVisible, saveLinkVisible] = useState(false);
+    const [modalVisible, saveModalVisible] = useState(false);
     const [imagePopoverVisible, saveImagePopoverVisible] = useState(false);
     const [href, saveHref] = useState('');
     const [imageLink, saveImageLink] = useState('');
+    const [htmlData, saveHtmlData] = useState('');
 	const handleChangeEditor = editorState => {
 		saveEditorState(editorState);
 	};
@@ -180,7 +183,7 @@ const RawEditor = () => {
         handleChangeEditor(addImage(editorState, imageLink));
         saveImageLink('');
         saveImagePopoverVisible(false);
-    }
+    };
 	const handleToggleColor = color => e => {
 		e.preventDefault();
 		const selection = editorState.getSelection();
@@ -216,7 +219,56 @@ const RawEditor = () => {
 
 		handleChangeEditor(nextEditorState);
 		saveColorPopoverVisible(false);
-	};
+    };
+    const handleExportHTML = () => {
+        const options = {
+            blockRenderers: {
+                atomic: (block) => {
+                    const entityKey = block.getEntityAt(0);
+                    const entity = editorState.getCurrentContent().getEntity(entityKey);
+                    const { src, width = 'auto', height = 'auto', alignment = 'left' } = entity.getData();
+                    return `<div style="text-align:${alignment}"><img alt="img" src="${src}" style="width:${width};height=${height}"/></div>`;
+                }
+            },
+            blockStyleFn: (block) => {
+                const blockType = block.getType();
+                if (blockType === 'code-block') {
+                    return {
+                        style: {
+                            fontWeight: 'bold',
+                            //color: orange;
+                            color: 'white',
+                            background: '#FE7F9C',
+                            fontFamily: 'Source Code Pro',
+                            padding: '0px 8px',
+                            margin: 0,
+                            borderRadius: 0,
+                        }
+                    }
+                }
+                else if (_.endsWith(blockType, 'align-center')) {
+                    return {
+                        style: {
+                            textAlign: 'center'
+                        }
+                    }
+                }
+                else if (_.endsWith(blockType, 'align-right')) {
+                    return {
+                        style: {
+                            textAlign: 'right'
+                        }
+                    }
+                }
+            }
+        }
+        saveHtmlData(stateToHTML(editorState.getCurrentContent(), options));
+        saveModalVisible(true);
+    };
+    const handleCancelHTMLModal = () => {
+        saveHtmlData('');
+        saveModalVisible(false);
+    };
 	const getBlockType = () => {
 		const selectionState = editorState.getSelection();
 		return editorState.getCurrentContent().getBlockForKey(selectionState.getStartKey()).getType();
@@ -292,6 +344,7 @@ const RawEditor = () => {
                         </div>
 						<ButtonGroup>
 							<Dropdown
+                            
 								trigger={['hover']}
 								overlay={(
 									<Menu
@@ -432,6 +485,9 @@ const RawEditor = () => {
 							<Tooltip placement="bottom" title="Focus">
                                 <Button icon="enter" onClick={handleFocus} />
                             </Tooltip>
+                            <Tooltip placement="bottom" title="Export to HTML">
+                                <Button icon="html5" onClick={handleExportHTML} />
+                            </Tooltip>
 						</ButtonGroup>
 					</div>
 					<div className={styles.editor} onClick={handleFocus}>
@@ -459,7 +515,35 @@ const RawEditor = () => {
 				</div>
 			</div>
 			<EmojiSuggestions />    
-            
+            <Modal
+                wrapClassName={styles.htmlModal}
+                visible={modalVisible}
+                
+                title="Export to HTML"
+                maskClosable={false}
+                footer={null}
+                onCancel={handleCancelHTMLModal}
+                centered
+                width={'85%'}
+            >
+                <Editor
+                    readOnly={true}
+                    onChange={handleChangeEditor}
+                    editorState={editorState}
+                    blockStyleFn={blockStyleFn}
+                    customStyleMap={config.customStyleMap}
+                    blockRenderMap={config.extendedBlockRenderMap}
+                    plugins={plugins}
+                    decorators={[
+                        {
+                            strategy: findLinkEntity,
+                            component: Link
+                        }
+                    ]}
+                    //handleBeforeInput={handleBeforeInput}
+                />
+                {/* <div dangerouslySetInnerHTML={{ __html: htmlData }} /> */}
+            </Modal>
 		</div>
 	)
 };

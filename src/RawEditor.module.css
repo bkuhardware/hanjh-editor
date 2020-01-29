@@ -85,8 +85,7 @@
   text-align: center;
 }
 .container .inlineDiv .main .editor .link {
-  color: darksalmon;
-  border-radius: 2px;
+  color: #fada5e;
   cursor: pointer;
 }
 .container .inlineDiv .main .editor .link:hover {
@@ -161,4 +160,37 @@
 .linkPopover .content input,
 .imagePopover .content input {
   width: 100%;
+}
+.htmlModal .rightAlign * {
+  text-align: right;
+}
+.htmlModal .centerAlign * {
+  text-align: center;
+}
+.htmlModal .link {
+  color: darksalmon;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.htmlModal .link:hover {
+  opacity: 0.7;
+}
+.htmlModal .codeBlock {
+  font-weight: bold;
+  color: white;
+  background: #fe7f9c;
+  font-family: "Source Code Pro", monospace;
+  padding: 0px 8px;
+  margin: 0;
+  border-radius: 0;
+}
+.htmlModal .codeBlock:first-child {
+  padding-top: 8px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+.htmlModal .codeBlock:last-child {
+  padding-bottom: 8px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
 }

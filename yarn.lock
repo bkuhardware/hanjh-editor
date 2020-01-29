@@ -4266,6 +4266,13 @@ draft-js-emoji-plugin@^2.1.3:
     react-icons "^2.2.6"
     to-style "^1.3.3"
 
+draft-js-export-html@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/draft-js-export-html/-/draft-js-export-html-1.4.1.tgz#7cdad970c6f7f2cdd19ce4c1f5073fdf0f313b4d"
+  integrity sha512-G4VGBSalPowktIE4wp3rFbhjs+Ln9IZ2FhXeHjsZDSw0a2+h+BjKu5Enq+mcsyVb51RW740GBK8Xbf7Iic51tw==
+  dependencies:
+    draft-js-utils "^1.4.0"
+
 draft-js-focus-plugin@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/draft-js-focus-plugin/-/draft-js-focus-plugin-3.0.1.tgz#235a2b80362ba65b6132f540ca1b2932a3eb19e9"
@@ -4309,6 +4316,11 @@ draft-js-sticker-plugin@^2.0.4:
   integrity sha512-Y+GmYaQ7nbeq5ZzCLaZvRd2ED9SZicCS5kQlxU6LD5hzZzD327KAODxfn11iKQTjoZSFV0W9tYoZZ7+6qTlB3g==
   dependencies:
     immutable "~3.7.4"
+
+draft-js-utils@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/draft-js-utils/-/draft-js-utils-1.4.0.tgz#c60af198108f69b0f1df3572555b23836819d1cf"
+  integrity sha512-8s9FFuKC+lOWGwJ0b3om2PF+uXrqQPaEQlPJI7UxdzxTYGMeKouMPA9+YlPn52zcAVElIZtd2tXj6eQmvlKelw==
 
 draft-js@^0.10.0, draft-js@~0.10.0:
   version "0.10.5"
