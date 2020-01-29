@@ -6,12 +6,22 @@ import { Button, Tooltip, Popover, Dropdown, Menu, Icon, Input } from 'antd';
 import { EditorState, RichUtils, Modifier, CompositeDecorator } from 'draft-js';
 import Editor from 'draft-js-plugins-editor';
 import createEmojiPlugin from 'draft-js-emoji-plugin';
-
+import createStickerPlugin from 'draft-js-sticker-plugin';
+import stickers from './stickers';
 import styles from './RawEditor.module.scss';
-import 'draft-js-emoji-plugin/lib/plugin.css'
+import 'draft-js-emoji-plugin/lib/plugin.css';
+import 'draft-js-sticker-plugin/lib/plugin.css'
 
-const emojiPlugin = createEmojiPlugin();
+const emojiPlugin = createEmojiPlugin({
+    selectButtonContent: <Icon type="smile" style={{ fontSize: 24 }}/>
+});
 const { EmojiSuggestions, EmojiSelect } = emojiPlugin;
+
+const stickerPlugin = createStickerPlugin({
+    stickers,
+    selectButtonContent: <Icon type="plus-circle" style={{ fontSize: 24 }} />
+});
+const { StickerSelect } = stickerPlugin;
 
 const ButtonGroup = Button.Group;
 const MenuItem = Menu.Item;
@@ -181,8 +191,10 @@ const RawEditor = () => {
 	};
 	const activeHeader = () => {
 		const active = _.startsWith(getBlockType(), 'header-');
-		if (active) return config.activeCSS;
-		return {}
+		if (active) return { width: 32, ...config.activeCSS };
+		return {
+            width: 32
+        }
 	};
 	const getListIcon = () => {
 		const blockType = _.split(getBlockType(), '_')[0];
@@ -223,9 +235,17 @@ const RawEditor = () => {
 				<div className={styles.title}>Raw Hanjh Editor</div>
 				<div className={styles.main}>
 					<div className={styles.btns}>
-                        <div className={styles.emojiBtn}>
+                        <div className={styles.pluginBtns}>
                             <Tooltip placement="bottom" title="Emoji">
                                 <EmojiSelect />
+                            </Tooltip>
+                            <Tooltip placement="bottom" title="Sticker" className={styles.sticker}>
+                                <StickerSelect editor={{
+                                    onChange: handleChangeEditor,
+                                    state: {
+                                        editorState
+                                    }
+                                }} />
                             </Tooltip>
                         </div>
 						<ButtonGroup>
@@ -368,7 +388,7 @@ const RawEditor = () => {
 							blockStyleFn={blockStyleFn}
 							customStyleMap={config.customStyleMap}
 							blockRenderMap={config.extendedBlockRenderMap}
-                            plugins={[emojiPlugin]}
+                            plugins={[emojiPlugin, stickerPlugin]}
 							//handleBeforeInput={handleBeforeInput}
 						/>
                         

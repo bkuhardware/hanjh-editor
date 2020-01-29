@@ -26,18 +26,24 @@
                     width: 20px;
                     display: inline-block;
                 }
-                button {
-                    width: 32px;
-                    padding: 0;
-                    font-weight: 600;
-                }
-                .emojiBtn {
+                .pluginBtns {
                     display: inline-block;
                     position: absolute;
                     right: 0;
                     height: 100%;
-                    button {
-                        width: 2.5em;
+                    padding-top: 4px;
+                    & > div {
+                        display: inline-block;
+                        margin-right: 8px;
+                        &:last-child {
+                            margin-right: 0;
+                        }
+                        & > button {
+                            cursor: pointer;
+                            width: 24px;
+                            height: 24px;
+                            border: none;
+                        }
                     }
                 }
             }

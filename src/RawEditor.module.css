@@ -28,19 +28,25 @@
   width: 20px;
   display: inline-block;
 }
-.container .inlineDiv .main .btns button {
-  width: 32px;
-  padding: 0;
-  font-weight: 600;
-}
-.container .inlineDiv .main .btns .emojiBtn {
+.container .inlineDiv .main .btns .pluginBtns {
   display: inline-block;
   position: absolute;
   right: 0;
   height: 100%;
+  padding-top: 4px;
 }
-.container .inlineDiv .main .btns .emojiBtn button {
-  width: 2.5em;
+.container .inlineDiv .main .btns .pluginBtns > div {
+  display: inline-block;
+  margin-right: 8px;
+}
+.container .inlineDiv .main .btns .pluginBtns > div:last-child {
+  margin-right: 0;
+}
+.container .inlineDiv .main .btns .pluginBtns > div > button {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  border: none;
 }
 .container .inlineDiv .main .editor {
   padding: 16px;

@@ -4253,6 +4253,13 @@ draft-js-plugins-editor@^3.0.0:
     immutable "~3.7.4"
     prop-types "^15.5.8"
 
+draft-js-sticker-plugin@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/draft-js-sticker-plugin/-/draft-js-sticker-plugin-2.0.4.tgz#16beefde0783f7219ac96843d6793f3f5a77d6f8"
+  integrity sha512-Y+GmYaQ7nbeq5ZzCLaZvRd2ED9SZicCS5kQlxU6LD5hzZzD327KAODxfn11iKQTjoZSFV0W9tYoZZ7+6qTlB3g==
+  dependencies:
+    immutable "~3.7.4"
+
 draft-js@^0.10.0, draft-js@~0.10.0:
   version "0.10.5"
   resolved "https://registry.yarnpkg.com/draft-js/-/draft-js-0.10.5.tgz#bfa9beb018fe0533dbb08d6675c371a6b08fa742"
