@@ -6,8 +6,9 @@ import 'draft-js/dist/Draft.css';
 import 'draft-js-emoji-plugin/lib/plugin.css';
 import 'draft-js-sticker-plugin/lib/plugin.css';
 import 'draft-js-image-plugin/lib/plugin.css';
-import 'draft-js-alignment-plugin/lib/plugin.css';
+//import 'draft-js-alignment-plugin/lib/plugin.css';
 import 'draft-js-focus-plugin/lib/plugin.css';
+import './plugin-css/alignment.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 

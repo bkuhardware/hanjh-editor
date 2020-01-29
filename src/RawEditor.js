@@ -3,7 +3,7 @@ import _ from 'lodash';
 import classNames from 'classnames';
 import * as config from './config';
 import { Button, Tooltip, Popover, Dropdown, Menu, Icon, Input } from 'antd';
-import { EditorState, RichUtils, Modifier } from 'draft-js';
+import { EditorState, RichUtils, Modifier, convertFromRaw } from 'draft-js';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
 import createEmojiPlugin from 'draft-js-emoji-plugin';
 import createStickerPlugin from 'draft-js-sticker-plugin';
@@ -84,11 +84,52 @@ const checkImageUrl = url => {
         '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
         '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
     return !!pattern.test(url);
-}
+};
+
+const initialState = {
+    "entityMap": {
+        "0": {
+            "type": "IMAGE",
+            "mutability": "IMMUTABLE",
+            "data": {
+                "src": "http://images.clipartpanda.com/apple-20clip-20art-nicubunu_Apple_Clipart_Free.png"
+            }
+        }
+    },
+    "blocks": [{
+        "key": "9gm3s",
+        "text": "You can have images in your text field. This is a very rudimentary example, but you can enhance the image plugin with resizing, focus or alignment plugins.",
+        "type": "unstyled",
+        "depth": 0,
+        "inlineStyleRanges": [],
+        "entityRanges": [],
+        "data": {}
+    }, {
+        "key": "ov7r",
+        "text": " ",
+        "type": "atomic",
+        "depth": 0,
+        "inlineStyleRanges": [],
+        "entityRanges": [{
+            "offset": 0,
+            "length": 1,
+            "key": 0
+        }],
+        "data": {}
+    }, {
+        "key": "e23a8",
+        "text": "See advanced examples further down …",
+        "type": "unstyled",
+        "depth": 0,
+        "inlineStyleRanges": [],
+        "entityRanges": [],
+        "data": {}
+    }]
+};
 
 const RawEditor = () => {
 	const editorRef = useRef(null);
-	const [editorState, saveEditorState] = useState(EditorState.createEmpty());
+	const [editorState, saveEditorState] = useState(EditorState.createWithContent(convertFromRaw(initialState)));
 	const [colorPopoverVisible, saveColorPopoverVisible] = useState(false);
 	const [headerVisible, saveHeaderVisible] = useState(false);
 	const [listVisible, saveListVisible] = useState(false);
