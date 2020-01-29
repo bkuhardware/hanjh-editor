@@ -3,8 +3,15 @@ import _ from 'lodash';
 import classNames from 'classnames';
 import * as config from './config';
 import { Button, Tooltip, Popover, Dropdown, Menu, Icon, Input } from 'antd';
-import { Editor, EditorState, RichUtils, Modifier, CompositeDecorator } from 'draft-js';
+import { EditorState, RichUtils, Modifier, CompositeDecorator } from 'draft-js';
+import Editor from 'draft-js-plugins-editor';
+import createEmojiPlugin from 'draft-js-emoji-plugin';
+
 import styles from './RawEditor.module.scss';
+import 'draft-js-emoji-plugin/lib/plugin.css'
+
+const emojiPlugin = createEmojiPlugin();
+const { EmojiSuggestions, EmojiSelect } = emojiPlugin;
 
 const ButtonGroup = Button.Group;
 const MenuItem = Menu.Item;
@@ -181,7 +188,7 @@ const RawEditor = () => {
 		const blockType = _.split(getBlockType(), '_')[0];
 		if (blockType === 'unordered-list-item') return 'unordered-list';
 		if (blockType === 'ordered-list-item') return 'ordered-list';
-		return 'dash';
+		return 'unordered-list';
 	};
 	const getAlignKeyAndIcon = () => {
 		const blockType = getBlockType();
@@ -213,9 +220,14 @@ const RawEditor = () => {
 	return (
 		<div className={styles.container}>
 			<div className={styles.inlineDiv}>
-				<div className={styles.title}>Hanjh Editor</div>
+				<div className={styles.title}>Raw Hanjh Editor</div>
 				<div className={styles.main}>
 					<div className={styles.btns}>
+                        <div className={styles.emojiBtn}>
+                            <Tooltip placement="bottom" title="Emoji">
+                                <EmojiSelect />
+                            </Tooltip>
+                        </div>
 						<ButtonGroup>
 							<Dropdown
 								trigger={['hover']}
@@ -341,7 +353,9 @@ const RawEditor = () => {
 							>
 								<Button icon="font-colors" style={{ color: config.customColorMap[activeKey].color }}/>
 							</Popover>
-							<Button icon="arrow-up" onClick={handleFocus} />
+							<Tooltip placement="bottom" title="Focus">
+                                <Button icon="enter" onClick={handleFocus} />
+                            </Tooltip>
 						</ButtonGroup>
 					</div>
 					<div className={styles.editor} onClick={handleFocus}>
@@ -354,13 +368,15 @@ const RawEditor = () => {
 							blockStyleFn={blockStyleFn}
 							customStyleMap={config.customStyleMap}
 							blockRenderMap={config.extendedBlockRenderMap}
+                            plugins={[emojiPlugin]}
 							//handleBeforeInput={handleBeforeInput}
 						/>
+                        
 					</div>
 					
 				</div>
 			</div>
-			
+			<EmojiSuggestions />     
 		</div>
 	)
 };

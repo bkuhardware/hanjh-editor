@@ -1,0 +1,51 @@
+.container {
+  width: 80%;
+  margin: auto;
+  height: 100vh;
+  position: relative;
+  font-size: 1.1em;
+}
+.container .inlineDiv {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 100%;
+}
+.container .inlineDiv .title {
+  font-size: 50px;
+  font-weight: bold;
+  color: #fe7f9c;
+  margin-bottom: 60px;
+}
+.container .inlineDiv .main .editor {
+  padding: 16px;
+  width: 80%;
+  margin: auto;
+  margin-top: 25px;
+  border: 1px solid rgba(20, 20, 20, 0.06);
+  min-height: 300px;
+  max-height: 600px;
+  border-radius: 4px;
+  overflow-y: auto;
+}
+.container .inlineDiv .main .editor :global(.DraftEditor-root) {
+  height: auto;
+}
+.container .inlineDiv .main .editor::-webkit-scrollbar {
+  width: 8px;
+}
+.container .inlineDiv .main .editor::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+.container .inlineDiv .main .editor::-webkit-scrollbar-thumb {
+  background: rgba(254, 127, 156, 0.5);
+  border-radius: 4px;
+}
+.container .inlineDiv .main .editor ::-webkit-scrollbar-thumb:hover {
+  background: #fe7f9c;
+}
+.container .inlineDiv .main .editor:hover {
+  border: 1px solid #fe7f9c;
+}
