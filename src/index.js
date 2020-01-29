@@ -3,6 +3,11 @@ import ReactDOM from 'react-dom';
 import 'es6-shim';
 import './index.css';
 import 'draft-js/dist/Draft.css';
+import 'draft-js-emoji-plugin/lib/plugin.css';
+import 'draft-js-sticker-plugin/lib/plugin.css';
+import 'draft-js-image-plugin/lib/plugin.css';
+import 'draft-js-alignment-plugin/lib/plugin.css';
+import 'draft-js-focus-plugin/lib/plugin.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 

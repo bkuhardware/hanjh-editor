@@ -154,9 +154,11 @@
   line-height: 22px;
   display: inline-block;
 }
-.linkPopover .content {
+.linkPopover .content,
+.imagePopover .content {
   width: 400px;
 }
-.linkPopover .content input {
+.linkPopover .content input,
+.imagePopover .content input {
   width: 100%;
 }

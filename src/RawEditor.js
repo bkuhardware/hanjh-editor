@@ -3,14 +3,17 @@ import _ from 'lodash';
 import classNames from 'classnames';
 import * as config from './config';
 import { Button, Tooltip, Popover, Dropdown, Menu, Icon, Input } from 'antd';
-import { EditorState, RichUtils, Modifier, CompositeDecorator } from 'draft-js';
-import Editor from 'draft-js-plugins-editor';
+import { EditorState, RichUtils, Modifier } from 'draft-js';
+import Editor, { composeDecorators } from 'draft-js-plugins-editor';
 import createEmojiPlugin from 'draft-js-emoji-plugin';
 import createStickerPlugin from 'draft-js-sticker-plugin';
+import createFocusPlugin from 'draft-js-focus-plugin';
+import createResizeablePlugin from 'draft-js-resizeable-plugin';
+import createAlignmentPlugin from 'draft-js-alignment-plugin';
+import createBlockDndPlugin from 'draft-js-drag-n-drop-plugin';
+import createImagePlugin from 'draft-js-image-plugin';
 import stickers from './stickers';
 import styles from './RawEditor.module.scss';
-import 'draft-js-emoji-plugin/lib/plugin.css';
-import 'draft-js-sticker-plugin/lib/plugin.css'
 
 const emojiPlugin = createEmojiPlugin({
     selectButtonContent: <Icon type="smile" style={{ fontSize: 24 }}/>
@@ -22,6 +25,30 @@ const stickerPlugin = createStickerPlugin({
     selectButtonContent: <Icon type="plus-circle" style={{ fontSize: 24 }} />
 });
 const { StickerSelect } = stickerPlugin;
+
+const focusPlugin = createFocusPlugin();
+const resizeablePlugin = createResizeablePlugin();
+const blockDndPlugin = createBlockDndPlugin();
+const alignmentPlugin = createAlignmentPlugin();
+const { AlignmentTool } = alignmentPlugin;
+
+const decorator = composeDecorators(
+    focusPlugin.decorator,
+    resizeablePlugin.decorator,
+    blockDndPlugin.decorator,
+    alignmentPlugin.decorator
+);
+const imagePlugin = createImagePlugin({ decorator });
+const { addImage } = imagePlugin;
+const plugins = [
+    emojiPlugin,
+    stickerPlugin,
+    focusPlugin,
+    resizeablePlugin,
+    blockDndPlugin,
+    alignmentPlugin,
+    imagePlugin
+];
 
 const ButtonGroup = Button.Group;
 const MenuItem = Menu.Item;
@@ -49,21 +76,27 @@ const checkHref = href => {
 	return hrefRegex.test(href);
 };
 
+const checkImageUrl = url => {
+    var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+        '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+        '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+        '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    return !!pattern.test(url);
+}
+
 const RawEditor = () => {
 	const editorRef = useRef(null);
-	const decorator = new CompositeDecorator([
-		{
-			strategy: findLinkEntity,
-			component: Link
-		}
-	]);
-	const [editorState, saveEditorState] = useState(EditorState.createEmpty(decorator));
+	const [editorState, saveEditorState] = useState(EditorState.createEmpty());
 	const [colorPopoverVisible, saveColorPopoverVisible] = useState(false);
 	const [headerVisible, saveHeaderVisible] = useState(false);
 	const [listVisible, saveListVisible] = useState(false);
 	const [alignVisible, saveAlignVisible] = useState(false);
-	const [linkVisible, saveLinkVisible] = useState(false);
-	const [href, saveHref] = useState('');
+    const [linkVisible, saveLinkVisible] = useState(false);
+    const [imagePopoverVisible, saveImagePopoverVisible] = useState(false);
+    const [href, saveHref] = useState('');
+    const [imageLink, saveImageLink] = useState('');
 	const handleChangeEditor = editorState => {
 		saveEditorState(editorState);
 	};
@@ -92,7 +125,10 @@ const RawEditor = () => {
 	};
 	const handleChangeHref = e => {
 		saveHref(e.target.value);
-	};
+    };
+    const handleChangeImageLink = e => {
+        saveImageLink(e.target.value);
+    };
 	const handleInlineStyle = inlineStyle => e => {
 		e.preventDefault();
 		handleChangeEditor(RichUtils.toggleInlineStyle(editorState, inlineStyle));
@@ -139,7 +175,12 @@ const RawEditor = () => {
 		handleChangeEditor(newEditorState);
 		saveLinkVisible(false);
 		saveHref('');
-	};
+    };
+    const handleAddImage = () => {
+        handleChangeEditor(addImage(editorState, imageLink));
+        saveImageLink('');
+        saveImagePopoverVisible(false);
+    }
 	const handleToggleColor = color => e => {
 		e.preventDefault();
 		const selection = editorState.getSelection();
@@ -191,9 +232,10 @@ const RawEditor = () => {
 	};
 	const activeHeader = () => {
 		const active = _.startsWith(getBlockType(), 'header-');
-		if (active) return { width: 32, ...config.activeCSS };
+		if (active) return { width: 32, padding: 0, ...config.activeCSS };
 		return {
-            width: 32
+            width: 32,
+            padding: 0
         }
 	};
 	const getListIcon = () => {
@@ -296,7 +338,7 @@ const RawEditor = () => {
 								<Button icon="code" onMouseDown={handleBlock('code-block')} style={activeBlock('code-block')} />
 							</Tooltip>
 							<Popover
-								placement="bottomLeft"
+								placement="bottom"
 								popupClassName={styles.linkPopover}
 								trigger="hover"
 								visible={linkVisible}
@@ -373,6 +415,20 @@ const RawEditor = () => {
 							>
 								<Button icon="font-colors" style={{ color: config.customColorMap[activeKey].color }}/>
 							</Popover>
+                            <Popover
+                                placement="bottom"
+                                popupClassName={styles.imagePopover}
+                                tigger="hover"
+                                visible={imagePopoverVisible}
+                                onVisibleChange={saveImagePopoverVisible}
+                                content={(
+                                    <div className={styles.content}>
+										<Search enterButton={<Button type="primary" icon="check" disabled={!checkImageUrl(imageLink)} style={{ width: 60 }}/>} value={imageLink} placeholder="Enter image url..." onChange={handleChangeImageLink} onSearch={handleAddImage} />
+									</div>
+                                )}
+                            >
+                                <Button icon="picture" />
+                            </Popover>
 							<Tooltip placement="bottom" title="Focus">
                                 <Button icon="enter" onClick={handleFocus} />
                             </Tooltip>
@@ -388,15 +444,22 @@ const RawEditor = () => {
 							blockStyleFn={blockStyleFn}
 							customStyleMap={config.customStyleMap}
 							blockRenderMap={config.extendedBlockRenderMap}
-                            plugins={[emojiPlugin, stickerPlugin]}
+                            plugins={plugins}
+                            decorators={[
+                                {
+                                    strategy: findLinkEntity,
+                                    component: Link
+                                }
+                            ]}
 							//handleBeforeInput={handleBeforeInput}
 						/>
-                        
+                        <AlignmentTool /> 
 					</div>
 					
 				</div>
 			</div>
-			<EmojiSuggestions />     
+			<EmojiSuggestions />    
+            
 		</div>
 	)
 };
